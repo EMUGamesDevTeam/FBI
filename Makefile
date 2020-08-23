@@ -38,8 +38,8 @@ VERSION_MICRO := $(word 3, $(VERSION_PARTS))
 
 ifeq ($(TARGET),$(filter $(TARGET),3DS WIIU))
     TITLE := $(NAME)
-    DESCRIPTION := Open source CIA installer.
-    AUTHOR := Steveice10
+    DESCRIPTION := Open source CIA installer with TitleDB support.
+    AUTHOR := EMUGames
 endif
 
 # 3DS CONFIGURATION #
