@@ -138,5 +138,5 @@ void titledb_open() {
 
     data->populateData.finished = true;
 
-    list_display("https://discord.gg/ptQg9kM", "A: Select, B: Return, X: Refresh", data, titledb_update, titledb_draw_top);
+    list_display("TitleDB.com", "A: Select, B: Return, X: Refresh", data, titledb_update, titledb_draw_top);
 }

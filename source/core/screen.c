@@ -167,7 +167,7 @@ void screen_init() {
         return;
     }
 
-    TGLP_s* glyphInfo = fontGetGlyphInfo(NULL);
+    TGLP_s* glyphInfo = fontGetGlyphInfo();
     glyph_sheets = calloc(glyphInfo->nSheets, sizeof(C3D_Tex));
     if(glyph_sheets == NULL) {
         util_panic("Failed to allocate font glyph texture data.");
@@ -176,7 +176,7 @@ void screen_init() {
 
     for(int i = 0; i < glyphInfo->nSheets; i++) {
         C3D_Tex* tex = &glyph_sheets[i];
-        tex->data = fontGetGlyphSheetTex(NULL, i);
+        tex->data = fontGetGlyphSheetTex(i);
         tex->fmt = (GPU_TEXCOLOR) glyphInfo->sheetFmt;
         tex->size = glyphInfo->sheetSize;
         tex->width = glyphInfo->sheetWidth;
@@ -602,7 +602,7 @@ void screen_draw_texture_crop(u32 id, float x, float y, float width, float heigh
 }
 
 float screen_get_font_height(float scaleY) {
-    return scaleY * fontGetInfo(NULL)->lineFeed;
+    return scaleY * fontGetInfo()->lineFeed;
 }
 
 static void screen_get_string_size_internal(float* width, float* height, const char* text, float scaleX, float scaleY, bool oneLine, bool wrap, float wrapX) {
@@ -611,7 +611,7 @@ static void screen_get_string_size_internal(float* width, float* height, const c
     float lineWidth = 0;
 
     if(text != NULL) {
-        h = scaleY * fontGetInfo(NULL)->lineFeed;
+        h = scaleY * fontGetInfo()->lineFeed;
 
         const uint8_t* p = (const uint8_t*) text;
         const uint8_t* lastAlign = p;
@@ -620,7 +620,7 @@ static void screen_get_string_size_internal(float* width, float* height, const c
         while(*p && (units = decode_utf8(&code, p)) != -1 && code > 0) {
             p += units;
 
-            if(code == '\n' || (wrap && lineWidth + scaleX * fontGetCharWidthInfo(NULL, fontGlyphIndexFromCodePoint(NULL, code))->charWidth >= wrapX)) {
+            if(code == '\n' || (wrap && lineWidth + scaleX * fontGetCharWidthInfo(fontGlyphIndexFromCodePoint(code))->charWidth >= wrapX)) {
                 lastAlign = p;
 
                 if(lineWidth > w) {
@@ -633,7 +633,7 @@ static void screen_get_string_size_internal(float* width, float* height, const c
                     break;
                 }
 
-                h += scaleY * fontGetInfo(NULL)->lineFeed;
+                h += scaleY * fontGetInfo()->lineFeed;
             }
 
             if(code != '\n') {
@@ -645,7 +645,7 @@ static void screen_get_string_size_internal(float* width, float* height, const c
                     lastAlign = p;
                 }
 
-                lineWidth += (scaleX * fontGetCharWidthInfo(NULL, fontGlyphIndexFromCodePoint(NULL, code))->charWidth) * num;
+                lineWidth += (scaleX * fontGetCharWidthInfo(fontGlyphIndexFromCodePoint(code))->charWidth) * num;
             }
         }
     }
@@ -708,7 +708,7 @@ static void screen_draw_string_internal(const char* text, float x, float y, floa
     while(*p && (units = decode_utf8(&code, p)) != -1 && code > 0) {
         p += units;
 
-        if(code == '\n' || (wrap && currX + scaleX * fontGetCharWidthInfo(NULL, fontGlyphIndexFromCodePoint(NULL, code))->charWidth >= wrapX)) {
+        if(code == '\n' || (wrap && currX + scaleX * fontGetCharWidthInfo(fontGlyphIndexFromCodePoint(code))->charWidth >= wrapX)) {
             lastAlign = p;
 
             screen_get_string_size_internal(&lineWidth, NULL, (const char*) p, scaleX, scaleY, true, wrap, wrapX);
@@ -718,7 +718,7 @@ static void screen_draw_string_internal(const char* text, float x, float y, floa
                 currX += (stringWidth - lineWidth) / 2;
             }
 
-            y += scaleY * fontGetInfo(NULL)->lineFeed;
+            y += scaleY * fontGetInfo()->lineFeed;
         }
 
         if(code != '\n') {
@@ -731,7 +731,7 @@ static void screen_draw_string_internal(const char* text, float x, float y, floa
             }
 
             fontGlyphPos_s data;
-            fontCalcGlyphPos(NULL, &data, fontGlyphIndexFromCodePoint(NULL, code), GLYPH_POS_CALC_VTXCOORD, scaleX, scaleY);
+            fontCalcGlyphPos(&data, fontGlyphIndexFromCodePoint(code), GLYPH_POS_CALC_VTXCOORD, scaleX, scaleY);
 
             if(data.sheetIndex != lastSheet) {
                 lastSheet = data.sheetIndex;
