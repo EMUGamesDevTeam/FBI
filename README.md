@@ -10,4 +10,4 @@ Richiede [devkitARM](http://sourceforge.net/projects/devkitpro/files/devkitARM/)
 
 Banner: [OctopusRift](http://gbatemp.net/members/octopusrift.356526/), [Apache Thunder](https://gbatemp.net/members/apache-thunder.105648/)
 
-Logo: [LeiX](https://www.youtube.com/LeiX_21)
+Logo: [LeiX_21](https://www.youtube.com/LeiX_21)
