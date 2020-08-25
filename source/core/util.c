@@ -14,7 +14,7 @@
 
 extern void cleanup();
 
-static int util_get_line_length(PrintConsole* console, const char* str) {
+int util_get_line_length(PrintConsole* console, const char* str) {
     int lineLength = 0;
     while(*str != 0) {
         if(*str == '\n') {
@@ -32,7 +32,7 @@ static int util_get_line_length(PrintConsole* console, const char* str) {
     return lineLength;
 }
 
-static int util_get_lines(PrintConsole* console, const char* str) {
+int util_get_lines(PrintConsole* console, const char* str) {
     int lines = 1;
     int lineLength = 0;
     while(*str != 0) {

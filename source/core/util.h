@@ -1,5 +1,8 @@
 #pragma once
 
+int util_get_line_length(PrintConsole* console, const char* str);
+int util_get_lines(PrintConsole* console, const char* str);
+
 typedef struct {
     u16 shortDescription[0x40];
     u16 longDescription[0x80];
