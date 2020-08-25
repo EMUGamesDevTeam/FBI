@@ -163,7 +163,7 @@ static void update_check_update(ui_view* view, void* data, float* progress, char
     u32 responseCode = 0;
 
     httpcContext context;
-    if(R_SUCCEEDED(res = util_http_open(&context, &responseCode, "https://api.github.com/repos/Steveice10/FBI/releases/latest", true))) {
+    if(R_SUCCEEDED(res = util_http_open(&context, &responseCode, "https://api.github.com/repos/EMUGamesDevTeam/FBI/releases/latest", true))) {
         u32 size = 0;
         if(R_SUCCEEDED(res = util_http_get_size(&context, &size))) {
             char* jsonText = (char*) calloc(sizeof(char), size);

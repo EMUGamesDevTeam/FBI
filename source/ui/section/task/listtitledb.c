@@ -151,7 +151,7 @@ static void task_populate_titledb_thread(void* arg) {
             u8* png = (u8*) calloc(1, maxPngSize);
             if(png != NULL) {
                 char pngUrl[128];
-                snprintf(pngUrl, sizeof(pngUrl), "https://api.titledb.com/images/%016llX.png", titledbInfo->titleId);
+                snprintf(pngUrl, sizeof(pngUrl), "http://api.titledb.ga:7080/images/%016llX.png", titledbInfo->titleId);
 
                 u32 pngSize = 0;
                 if(R_SUCCEEDED(task_populate_titledb_download(&pngSize, png, maxPngSize, pngUrl))) {
