@@ -143,24 +143,6 @@ static Result action_install_cdn_write_dst(void* data, u32 handle, u32* bytesWri
     return FSFILE_Write(handle, bytesWritten, offset, buffer, size, 0);
 }
 
-static Result action_install_cdn_suspend_copy(void* data, u32 index, u32* srcHandle, u32* dstHandle) {
-    if(index > 0 && *dstHandle != 0) {
-        return AM_InstallContentStop(*dstHandle);
-    } else {
-        return 0;
-    }
-}
-
-static Result action_install_cdn_restore_copy(void* data, u32 index, u32* srcHandle, u32* dstHandle) {
-    install_cdn_data* installData = (install_cdn_data*) data;
-
-    if(index > 0 && *dstHandle != 0) {
-        return AM_InstallContentResume(dstHandle, &installData->installInfo.currProcessed, installData->contentIndices[index - 1]);
-    } else {
-        return 0;
-    }
-}
-
 static Result action_install_cdn_suspend(void* data, u32 index) {
     return AM_InstallTitleStop();
 }
@@ -316,9 +298,6 @@ static void action_install_cdn_internal(volatile bool* done, ticket_info* info, 
     data->installInfo.openDst = action_install_cdn_open_dst;
     data->installInfo.closeDst = action_install_cdn_close_dst;
     data->installInfo.writeDst = action_install_cdn_write_dst;
-
-    data->installInfo.suspendCopy = action_install_cdn_suspend_copy;
-    data->installInfo.restoreCopy = action_install_cdn_restore_copy;
 
     data->installInfo.suspend = action_install_cdn_suspend;
     data->installInfo.restore = action_install_cdn_restore;

@@ -3,6 +3,9 @@
 typedef struct ticket_info_s ticket_info;
 typedef struct linked_list_s linked_list;
 typedef struct list_item_s list_item;
+typedef struct ui_view_s ui_view;
+
+#define INSTALL_URLS_MAX 128
 
 void action_browse_boss_ext_save_data(linked_list* items, list_item* selected);
 void action_browse_user_ext_save_data(linked_list* items, list_item* selected);
@@ -33,8 +36,6 @@ void action_delete_all_pending_titles(linked_list* items, list_item* selected);
 
 void action_delete_ticket(linked_list* items, list_item* selected);
 void action_delete_tickets_unused(linked_list* items, list_item* selected);
-void action_install_cdn(linked_list* items, list_item* selected);
-void action_install_cdn_noprompt(volatile bool* done, ticket_info* info, bool finishedPrompt);
 
 void action_delete_title(linked_list* items, list_item* selected);
 void action_delete_title_ticket(linked_list* items, list_item* selected);
@@ -49,6 +50,15 @@ void action_import_secure_value(linked_list* items, list_item* selected);
 void action_export_secure_value(linked_list* items, list_item* selected);
 void action_delete_secure_value(linked_list* items, list_item* selected);
 
-void action_url_install(const char* confirmMessage, const char* urls, void* finishedData, void (*finished)(void* data));
+void action_install_url(const char* confirmMessage, const char* urls, const char* paths, void* userData,
+                        void (*finishedURL)(void* data, u32 index),
+                        void (*finishedAll)(void* data),
+                        void (*drawTop)(ui_view* view, void* data, float x1, float y1, float x2, float y2, u32 index));
 
 void action_install_titledb(linked_list* items, list_item* selected);
+void action_mark_titledb_updated(linked_list* items, list_item* selected, bool cia);
+void action_update_titledb(linked_list* items, list_item* selected);
+void action_delete_ticket(linked_list* items, list_item* selected);
+void action_delete_tickets_unused(linked_list* items, list_item* selected);
+void action_install_cdn(linked_list* items, list_item* selected);
+void action_install_cdn_noprompt(volatile bool* done, ticket_info* info, bool finishedPrompt);

@@ -4,9 +4,11 @@
 #include <string.h>
 
 #include <3ds.h>
+#include <curl/curl.h>
 
 #include "error.h"
 #include "prompt.h"
+#include "error.h"
 #include "../core/screen.h"
 
 static const char* level_to_string(Result res) {
@@ -486,21 +488,154 @@ static const char* description_to_string(Result res) {
             break;
         case RM_APPLICATION:
             switch(res) {
-                case R_FBI_CANCELLED:
-                    return "Operation cancelled";
-                case R_FBI_HTTP_RESPONSE_CODE:
-                    return "HTTP request returned error";
-                case R_FBI_WRONG_SYSTEM:
-                    return "Attempted to install an N3DS title on an O3DS";
                 case R_FBI_INVALID_ARGUMENT:
                     return "Invalid argument";
+                case R_FBI_CANCELLED:
+                    return "Operation cancelled";
+                case R_FBI_SKIPPED:
+                    return "Operation skipped";
                 case R_FBI_THREAD_CREATE_FAILED:
                     return "Thread creation failed";
                 case R_FBI_PARSE_FAILED:
                     return "Parse failed";
                 case R_FBI_BAD_DATA:
                     return "Bad data";
+                case R_FBI_HTTP_TOO_MANY_REDIRECTS:
+                    return "Too many redirects";
                 default:
+                    if(res >= R_FBI_HTTP_ERROR_BASE && res < R_FBI_HTTP_ERROR_END) {
+                        switch(res - R_FBI_HTTP_ERROR_BASE) {
+                            case 100:
+                                return "HTTP 100: Continue";
+                            case 101:
+                                return "HTTP 101: Switching Protocols";
+                            case 102:
+                                return "HTTP 102: Processing";
+                            case 103:
+                                return "HTTP 103: Early Hints";
+                            case 200:
+                                return "HTTP 200: OK";
+                            case 201:
+                                return "HTTP 201: Created";
+                            case 202:
+                                return "HTTP 202: Accepted";
+                            case 203:
+                                return "HTTP 203: Non-Authoritative Information";
+                            case 204:
+                                return "HTTP 204: No Content";
+                            case 205:
+                                return "HTTP 205: Reset Content";
+                            case 206:
+                                return "HTTP 206: Partial Content";
+                            case 207:
+                                return "HTTP 207: Multi-Status";
+                            case 208:
+                                return "HTTP 208: Already Reported";
+                            case 226:
+                                return "HTTP 226: IM Used";
+                            case 300:
+                                return "HTTP 300: Multiple Choices";
+                            case 301:
+                                return "HTTP 301: Moved Permanently";
+                            case 302:
+                                return "HTTP 302: Found";
+                            case 303:
+                                return "HTTP 303: See Other";
+                            case 304:
+                                return "HTTP 304: Not Modified";
+                            case 305:
+                                return "HTTP 305: Use Proxy";
+                            case 306:
+                                return "HTTP 306: Switch Proxy";
+                            case 307:
+                                return "HTTP 307: Temporary Redirect";
+                            case 308:
+                                return "HTTP 308: Permanent Redirect";
+                            case 400:
+                                return "HTTP 400: Bad Request";
+                            case 401:
+                                return "HTTP 401: Unauthorized";
+                            case 402:
+                                return "HTTP 402: Payment Required";
+                            case 403:
+                                return "HTTP 403: Forbidden";
+                            case 404:
+                                return "HTTP 404: Not Found";
+                            case 405:
+                                return "HTTP 405: Method Not Allowed";
+                            case 406:
+                                return "HTTP 406: Not Acceptable";
+                            case 407:
+                                return "HTTP 407: Proxy Authentication Required";
+                            case 408:
+                                return "HTTP 408: Request Timeout";
+                            case 409:
+                                return "HTTP 409: Conflict";
+                            case 410:
+                                return "HTTP 410: Gone";
+                            case 411:
+                                return "HTTP 411: Length Required";
+                            case 412:
+                                return "HTTP 412: Precondition Failed";
+                            case 413:
+                                return "HTTP 413: Payload Too Large";
+                            case 414:
+                                return "HTTP 414: URI Too Long";
+                            case 415:
+                                return "HTTP 415: Unsupported Media Type";
+                            case 416:
+                                return "HTTP 416: Range Not Satisfiable";
+                            case 417:
+                                return "HTTP 417: Expectation Failed";
+                            case 418:
+                                return "HTTP 418: I'm a teapot";
+                            case 421:
+                                return "HTTP 421: Misdirected Request";
+                            case 422:
+                                return "HTTP 422: Unprocessable Entity";
+                            case 423:
+                                return "HTTP 423: Locked";
+                            case 424:
+                                return "HTTP 424: Failed Dependency";
+                            case 426:
+                                return "HTTP 426: Upgrade Required";
+                            case 428:
+                                return "HTTP 428: Precondition Required";
+                            case 429:
+                                return "HTTP 429: Too Many Requests";
+                            case 431:
+                                return "HTTP 431: Request Header Fields Too Large";
+                            case 451:
+                                return "HTTP 451: Unavailable For Legal Reasons";
+                            case 500:
+                                return "HTTP 500: Internal Server Error";
+                            case 501:
+                                return "HTTP 501: Not Implemented";
+                            case 502:
+                                return "HTTP 502: Bad Gateway";
+                            case 503:
+                                return "HTTP 503: Service Unavailable";
+                            case 504:
+                                return "HTTP 504: Gateway Timeout";
+                            case 505:
+                                return "HTTP 505: HTTP Version Not Specified";
+                            case 506:
+                                return "HTTP 506: Variant Also Negotiates";
+                            case 507:
+                                return "HTTP 507: Insufficient Storage";
+                            case 508:
+                                return "HTTP 508: Loop Detected";
+                            case 510:
+                                return "HTTP 510: Not Extended";
+                            case 511:
+                                return "HTTP 511: Network Authentication Required";
+                            default:
+                                return "HTTP: Unknown Response Code";
+                        }
+                    } else if(res >= R_FBI_CURL_ERROR_BASE && res < R_FBI_CURL_ERROR_END) {
+                        return curl_easy_strerror(res - R_FBI_CURL_ERROR_BASE);
+                    }
+
                     break;
             }
         default:
@@ -575,7 +710,7 @@ static void error_draw_top(ui_view* view, void* data, float x1, float y1, float 
     }
 }
 
-static void error_onresponse(ui_view* view, void* data, bool response) {
+static void error_onresponse(ui_view* view, void* data, u32 response) {
     free(data);
 }
 
@@ -621,7 +756,6 @@ ui_view* error_display_res(void* data, void (*drawTop)(ui_view* view, void* data
 
     return prompt_display("Error", errorData->fullText, COLOR_TEXT, false, errorData, error_draw_top, error_onresponse);
 }
-
 ui_view* error_display_errno(void* data, void (*drawTop)(ui_view* view, void* data, float x1, float y1, float x2, float y2), int err, const char* text, ...) {
     error_data* errorData = (error_data*) calloc(1, sizeof(error_data));
     if(errorData == NULL) {
@@ -645,78 +779,4 @@ ui_view* error_display_errno(void* data, void (*drawTop)(ui_view* view, void* da
     snprintf(errorData->fullText, 4096, "%s\nI/O Error: %s (%d)", textBuf, strerror(err), err);
 
     return prompt_display("Error", errorData->fullText, COLOR_TEXT, false, errorData, error_draw_top, error_onresponse);
-}
-void error_panic(const char* s, ...) {
-    va_list list;
-    va_start(list, s);
-
-    char buf[1024];
-    vsnprintf(buf, 1024, s, list);
-
-    va_end(list);
-
-    gspWaitForVBlank();
-
-    u16 width;
-    u16 height;
-    for(int i = 0; i < 2; i++) {
-        memset(gfxGetFramebuffer(GFX_TOP, GFX_LEFT, &width, &height), 0, (size_t) (width * height * 3));
-        memset(gfxGetFramebuffer(GFX_TOP, GFX_RIGHT, &width, &height), 0, (size_t) (width * height * 3));
-        memset(gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, &width, &height), 0, (size_t) (width * height * 3));
-
-        gfxSwapBuffers();
-    }
-
-    PrintConsole* console = consoleInit(GFX_TOP, NULL);
-
-    const char* header = "FBI has encountered a fatal error!";
-    const char* footer = "Press any button to exit.";
-
-    printf("\x1b[0;0H");
-    for(int i = 0; i < console->consoleWidth; i++) {
-        printf("-");
-    }
-
-    printf("\x1b[%d;0H", console->consoleHeight - 1);
-    for(int i = 0; i < console->consoleWidth; i++) {
-        printf("-");
-    }
-
-    printf("\x1b[0;%dH%s", (console->consoleWidth - util_get_line_length(console, header)) / 2, header);
-    printf("\x1b[%d;%dH%s", console->consoleHeight - 1, (console->consoleWidth - util_get_line_length(console, footer)) / 2, footer);
-
-    int bufRow = (console->consoleHeight - util_get_lines(console, buf)) / 2;
-    char* str = buf;
-    while(*str != 0) {
-        if(*str == '\n') {
-            bufRow++;
-            str++;
-            continue;
-        } else {
-            int lineLength = util_get_line_length(console, str);
-
-            char old = *(str + lineLength);
-            *(str + lineLength) = '\0';
-            printf("\x1b[%d;%dH%s", bufRow, (console->consoleWidth - lineLength) / 2, str);
-            *(str + lineLength) = old;
-
-            bufRow++;
-            str += lineLength;
-        }
-    }
-
-    gfxFlushBuffers();
-    gspWaitForVBlank();
-
-    while(aptMainLoop()) {
-        hidScanInput();
-        if(hidKeysDown() & ~KEY_TOUCH) {
-            break;
-        }
-
-        gspWaitForVBlank();
-    }
-
-    cleanup();
-    exit(1);
 }

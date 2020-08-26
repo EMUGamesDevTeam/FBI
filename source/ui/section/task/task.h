@@ -1,7 +1,16 @@
 #pragma once
 
+typedef struct json_t json_t;
+
+typedef struct ui_view_s ui_view;
+
+#define DOWNLOAD_URL_MAX 1024
+
 #define FILE_NAME_MAX 512
 #define FILE_PATH_MAX 512
+#define PROMPT_YES 0
+#define copyBytesPerSecond bytesPerSecond
+#define copyBufferSize bufferSize
 
 typedef struct linked_list_s linked_list;
 typedef struct list_item_s list_item;
@@ -90,6 +99,7 @@ typedef struct capture_cam_data_s {
 
 typedef enum data_op_e {
     DATAOP_COPY,
+    DATAOP_DOWNLOAD,
     DATAOP_DELETE
 } data_op;
 
@@ -98,17 +108,25 @@ typedef struct data_op_data_s {
 
     data_op op;
 
-    // Copy
-    u32 copyBufferSize;
-    bool copyEmpty;
-
-    u32 copyBytesPerSecond;
-
     u32 processed;
     u32 total;
 
+    // Copy/Download
     u64 currProcessed;
     u64 currTotal;
+
+    u32 bytesPerSecond;
+    u32 estimatedRemainingSeconds;
+
+    u32 bufferSize;
+
+    Result (*openDst)(void* data, u32 index, void* initialReadBlock, u64 size, u32* handle);
+    Result (*closeDst)(void* data, u32 index, bool succeeded, u32 handle);
+
+    Result (*writeDst)(void* data, u32 handle, u32* bytesWritten, void* buffer, u64 offset, u32 size);
+
+    // Copy
+    bool copyEmpty;
 
     Result (*isSrcDirectory)(void* data, u32 index, bool* isDirectory);
     Result (*makeDstDirectory)(void* data, u32 index);
@@ -119,13 +137,8 @@ typedef struct data_op_data_s {
     Result (*getSrcSize)(void* data, u32 handle, u64* size);
     Result (*readSrc)(void* data, u32 handle, u32* bytesRead, void* buffer, u64 offset, u32 size);
 
-    Result (*openDst)(void* data, u32 index, void* initialReadBlock, u64 size, u32* handle);
-    Result (*closeDst)(void* data, u32 index, bool succeeded, u32 handle);
-
-    Result (*writeDst)(void* data, u32 handle, u32* bytesWritten, void* buffer, u64 offset, u32 size);
-
-    Result (*suspendCopy)(void* data, u32 index, u32* srcHandle, u32* dstHandle);
-    Result (*restoreCopy)(void* data, u32 index, u32* srcHandle, u32* dstHandle);
+    // Download
+    Result (*getSrcUrl)(void* data, u32 index, char* url, size_t maxSize);
 
     // Delete
     Result (*delete)(void* data, u32 index);
@@ -135,12 +148,15 @@ typedef struct data_op_data_s {
     Result (*restore)(void* data, u32 index);
 
     // Errors
-    bool (*error)(void* data, u32 index, Result res);
+    bool (*error)(void* data, u32 index, Result res, ui_view** errorView);
 
     // General
     volatile bool finished;
     Result result;
     Handle cancelEvent;
+
+    // Internal
+    volatile bool retryResponse;
 } data_op_data;
 
 typedef struct populate_ext_save_data_data_s {

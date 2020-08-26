@@ -405,6 +405,40 @@ void ui_draw_meta_info(ui_view* view, void* data, float x1, float y1, float x2, 
     screen_draw_string_wrap(info->publisher, metaTextX, publisherY, 0.5f, 0.5f, COLOR_TEXT, false, metaInfoBoxX + metaInfoBoxWidth - 8);
 }
 
+double ui_get_display_size(u64 size) {
+    double s = size;
+    if(s >= 1024) {
+        s /= 1024;
+    }
+
+    if(s >= 1024) {
+        s /= 1024;
+    }
+
+    if(s >= 1024) {
+        s /= 1024;
+    }
+
+    return s;
+}
+
+
+const char* ui_get_display_size_units(u64 size) {
+    if(size >= 1024 * 1024 * 1024) {
+        return "GiB";
+    }
+
+    if(size >= 1024 * 1024) {
+        return "MiB";
+    }
+
+    if(size >= 1024) {
+        return "KiB";
+    }
+
+    return "B";
+}
+
 void ui_draw_ext_save_data_info(ui_view* view, void* data, float x1, float y1, float x2, float y2) {
     ext_save_data_info* info = (ext_save_data_info*) data;
 

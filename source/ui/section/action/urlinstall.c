@@ -10,8 +10,7 @@
 #include "../../info.h"
 #include "../../prompt.h"
 #include "../../ui.h"
-#include "../../../core/screen.h"
-#include "../../../core/util.h"
+#include "../../../core/core.h"
 
 #define URL_MAX 1024
 #define URLS_MAX 128
@@ -53,12 +52,10 @@ static void action_url_install_n3ds_onresponse(ui_view* view, void* data, bool r
     ((url_install_data*) data)->n3dsContinue = response;
 }
 
-static Result action_url_install_is_src_directory(void* data, u32 index, bool* isDirectory) {
-    *isDirectory = false;
-    return 0;
-}
+static Result action_url_install_get_src_url(void* data, u32 index, char* url, size_t maxSize) {
+    url_install_data* installData = (url_install_data*) data;
 
-static Result action_url_install_make_dst_directory(void* data, u32 index) {
+    strncpy(url, installData->urls[index], maxSize);
     return 0;
 }
 
@@ -91,10 +88,6 @@ static Result action_url_install_get_src_size(void* data, u32 handle, u64* size)
 
     *size = downloadSize;
     return res;
-}
-
-static Result action_url_install_read_src(void* data, u32 handle, u32* bytesRead, void* buffer, u64 offset, u32 size) {
-    return util_http_read((httpcContext*) handle, bytesRead, buffer, size);
 }
 
 static Result action_url_install_open_dst(void* data, u32 index, void* initialReadBlock, u64 size, u32* handle) {
@@ -201,14 +194,6 @@ static Result action_url_install_close_dst(void* data, u32 index, bool succeeded
 
 static Result action_url_install_write_dst(void* data, u32 handle, u32* bytesWritten, void* buffer, u64 offset, u32 size) {
     return FSFILE_Write(handle, bytesWritten, offset, buffer, size, 0);
-}
-
-static Result action_url_install_suspend_copy(void* data, u32 index, u32* srcHandle, u32* dstHandle) {
-    return 0;
-}
-
-static Result action_url_install_restore_copy(void* data, u32 index, u32* srcHandle, u32* dstHandle) {
-    return 0;
 }
 
 static Result action_url_install_suspend(void* data, u32 index) {
@@ -348,25 +333,15 @@ void action_url_install(const char* confirmMessage, const char* urls, void* fini
 
     data->installInfo.data = data;
 
-    data->installInfo.op = DATAOP_COPY;
+    data->installInfo.op = DATAOP_DOWNLOAD;
 
     data->installInfo.copyBufferSize = 128 * 1024;
-    data->installInfo.copyEmpty = false;
 
-    data->installInfo.isSrcDirectory = action_url_install_is_src_directory;
-    data->installInfo.makeDstDirectory = action_url_install_make_dst_directory;
-
-    data->installInfo.openSrc = action_url_install_open_src;
-    data->installInfo.closeSrc = action_url_install_close_src;
-    data->installInfo.getSrcSize = action_url_install_get_src_size;
-    data->installInfo.readSrc = action_url_install_read_src;
+    data->installInfo.getSrcUrl = action_url_install_get_src_url;
 
     data->installInfo.openDst = action_url_install_open_dst;
     data->installInfo.closeDst = action_url_install_close_dst;
     data->installInfo.writeDst = action_url_install_write_dst;
-
-    data->installInfo.suspendCopy = action_url_install_suspend_copy;
-    data->installInfo.restoreCopy = action_url_install_restore_copy;
 
     data->installInfo.suspend = action_url_install_suspend;
     data->installInfo.restore = action_url_install_restore;

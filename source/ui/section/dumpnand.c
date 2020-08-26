@@ -75,14 +75,6 @@ static Result dumpnand_write_dst(void* data, u32 handle, u32* bytesWritten, void
     return FSFILE_Write(handle, bytesWritten, offset, buffer, size, 0);
 }
 
-static Result dumpnand_suspend_copy(void* data, u32 index, u32* srcHandle, u32* dstHandle) {
-    return 0;
-}
-
-static Result dumpnand_restore_copy(void* data, u32 index, u32* srcHandle, u32* dstHandle) {
-    return 0;
-}
-
 static Result dumpnand_suspend(void* data, u32 index) {
     return 0;
 }
@@ -122,7 +114,7 @@ static void dumpnand_update(ui_view* view, void* data, float* progress, char* te
     }
 
     *progress = dumpData->currTotal != 0 ? (float) ((double) dumpData->currProcessed / (double) dumpData->currTotal) : 0;
-    snprintf(text, PROGRESS_TEXT_MAX, "%.2f %s / %.2f %s\n%.2f %s/s", util_get_display_size(dumpData->currProcessed), util_get_display_size_units(dumpData->currProcessed), util_get_display_size(dumpData->currTotal), util_get_display_size_units(dumpData->currTotal), util_get_display_size(dumpData->copyBytesPerSecond), util_get_display_size_units(dumpData->copyBytesPerSecond));
+    snprintf(text, PROGRESS_TEXT_MAX, "%.2f %s / %.2f %s\n%.2f %s/s", util_get_display_size(dumpData->currProcessed), util_get_display_size_units(dumpData->currProcessed), util_get_display_size(dumpData->currTotal), util_get_display_size_units(dumpData->currTotal), util_get_display_size(dumpData->bytesPerSecond), util_get_display_size_units(dumpData->bytesPerSecond));
 }
 
 static void dumpnand_onresponse(ui_view* view, void* data, bool response) {
@@ -153,7 +145,7 @@ void dumpnand_open() {
 
     data->op = DATAOP_COPY;
 
-    data->copyBufferSize = 256 * 1024;
+    data->bufferSize = 256 * 1024;
     data->copyEmpty = true;
 
     data->total = 1;
@@ -169,9 +161,6 @@ void dumpnand_open() {
     data->openDst = dumpnand_open_dst;
     data->closeDst = dumpnand_close_dst;
     data->writeDst = dumpnand_write_dst;
-
-    data->suspendCopy = dumpnand_suspend_copy;
-    data->restoreCopy = dumpnand_restore_copy;
 
     data->suspend = dumpnand_suspend;
     data->restore = dumpnand_restore;

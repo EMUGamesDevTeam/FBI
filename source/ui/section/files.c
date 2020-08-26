@@ -37,8 +37,8 @@ static list_item install_all_cias = {"Install all CIAs", COLOR_TEXT, action_inst
 static list_item install_and_delete_all_cias = {"Install and delete all CIAs", COLOR_TEXT, action_install_cias_delete};
 static list_item delete_all_cias = {"Delete all CIAs", COLOR_TEXT, action_delete_dir_cias};
 
-static list_item install_all_tickets = {"Install all tickets", COLOR_TEXT, action_install_tickets};
-static list_item install_and_delete_all_tickets = {"Install and delete all tickets", COLOR_TEXT, action_install_tickets_delete};
+static list_item install_all_tickets = {"Install all tickets", COLOR_TEXT, action_install_ticket};
+static list_item install_and_delete_all_tickets = {"Install and delete all tickets", COLOR_TEXT, action_install_ticket_delete};
 static list_item delete_all_tickets = {"Delete all tickets", COLOR_TEXT, action_delete_dir_tickets};
 
 typedef struct {

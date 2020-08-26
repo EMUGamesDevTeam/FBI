@@ -32,3 +32,6 @@ void ui_draw_system_save_data_info(ui_view* view, void* data, float x1, float y1
 void ui_draw_ticket_info(ui_view* view, void* data, float x1, float y1, float x2, float y2);
 void ui_draw_title_info(ui_view* view, void* data, float x1, float y1, float x2, float y2);
 void ui_draw_titledb_info(ui_view* view, void* data, float x1, float y1, float x2, float y2);
+
+double ui_get_display_size(u64 size);
+const char* ui_get_display_size_units(u64 size);
