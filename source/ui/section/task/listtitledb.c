@@ -74,10 +74,10 @@ static json_t* task_populate_titledb_cache_get_base(u32 id, bool cia, bool creat
 
         if(json_is_object(cache)) {
             // Get old cache entry.
-            const char* objIdKey = cia ? "cia_id": "cia_id";
+            const char* objIdKey = cia ? "cia_id": "tdsx_id";
             json_t* objId = json_object_get(cache, objIdKey);
 
-            const char* objKey = cia ? "cia": "cia_id";
+            const char* objKey = cia ? "cia": "tdsx_id";
             json_t* obj = json_object_get(cache, objKey);
             if(!json_is_object(obj)) {
                 // Force creation if old value to migrate exists.
@@ -188,7 +188,6 @@ static void task_populate_titledb_thread(void* arg) {
                         titledb_info* titledbInfo = (titledb_info*) calloc(1, sizeof(titledb_info));
                         if(titledbInfo != NULL) {
                             titledbInfo->id = (u32) json_object_get_integer(entry, "id", 0);
-                            string_copy(titledbInfo->titleId, json_object_get_string(entry, "name", "Unknown"), sizeof(titledbInfo->titleId));
                             string_copy(titledbInfo->meta.shortDescription, json_object_get_string(entry, "name", "Unknown"), sizeof(titledbInfo->meta.shortDescription));
                             string_copy(titledbInfo->meta.longDescription, json_object_get_string(entry, "description", ""), sizeof(titledbInfo->meta.longDescription));
                             string_copy(titledbInfo->meta.publisher, json_object_get_string(entry, "author", ""), sizeof(titledbInfo->meta.publisher));
@@ -298,16 +297,16 @@ static void task_populate_titledb_thread(void* arg) {
             list_item* item = (list_item*) linked_list_iter_next(&iter);
             titledb_info* titledbInfo = (titledb_info*) item->data;
 
-            char url[128];
+            char pngUrl[128];
             if(titledbInfo->cia.exists) {
-                snprintf(url, sizeof(url), "https://3ds.titledb.com/v1/cia/%lu/icon_l.bin", titledbInfo->cia.id);
+                snprintf(pngUrl, sizeof(pngUrl), "https://api.titledb.ga:7443/images/%016llX.png", titledbInfo->cia.titleId);
             } else {
                 continue;
             }
 
             u8 icon[0x1200];
             u32 iconSize = 0;
-            if(R_SUCCEEDED(http_download_buffer(url, &iconSize, &icon, sizeof(icon))) && iconSize == sizeof(icon)) {
+            if(R_SUCCEEDED(http_download_buffer(pngUrl, &iconSize, &icon, sizeof(icon))) && iconSize == sizeof(icon)) {
                 titledbInfo->meta.texture = screen_allocate_free_texture();
                 screen_load_texture_tiled(titledbInfo->meta.texture, icon, sizeof(icon), 48, 48, GPU_RGB565, false);
             }
