@@ -41,7 +41,6 @@
 #define TEXTURE_WIFI_3 31
 
 #define MAX_COLORS 13
-
 #define COLOR_TEXT 0
 #define COLOR_NAND 1
 #define COLOR_SD 2
@@ -51,10 +50,13 @@
 #define COLOR_DIRECTORY 6
 #define COLOR_ENABLED 7
 #define COLOR_DISABLED 8
+#define COLOR_TITLEDB_INSTALLED 9
+#define COLOR_TITLEDB_OUTDATED 10
+#define COLOR_TITLEDB_NOT_INSTALLED 11
+#define COLOR_TICKET_IN_USE 12
+#define COLOR_TICKET_NOT_IN_USE 13
 #define COLOR_INSTALLED 9
 #define COLOR_NOT_INSTALLED 10
-#define COLOR_TICKET_IN_USE 11
-#define COLOR_TICKET_NOT_IN_USE 12
 
 void screen_init();
 void screen_exit();

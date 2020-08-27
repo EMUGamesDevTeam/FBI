@@ -8,6 +8,8 @@
 #include "http.h"
 #include "linkedlist.h"
 #include "screen.h"
+#include "util.h"
 #include "spi.h"
 #include "stringutil.h"
 #include "util.h"
+#include "screen.h"
